@@ -1,0 +1,23 @@
+{
+  "name": "mini-task-manager",
+  "version": "1.0.0",
+  "description": "**Mini Task Manager** — це базовий веб-додаток для керування списком повсякденних завдань. Проєкт створено з метою демонстрації навичок роботи з розподіленою системою контролю версій Git та платформою GitHub у рамках виконання лабораторної роботи.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SilentProg/mini-task-manager.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SilentProg/mini-task-manager/issues"
+  },
+  "homepage": "https://github.com/SilentProg/mini-task-manager#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
