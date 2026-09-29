@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 const pool = require('./db');
 
 const app = express();
@@ -8,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_jwt_please_change_it'; // В ідеалі додати в .env
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ==========================================
 // МІДЛВАР ДЛЯ ПЕРЕВІРКИ АВТОРИЗАЦІЇ
