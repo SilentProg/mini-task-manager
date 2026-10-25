@@ -90,10 +90,16 @@
 | `docker-compose.yml` | Стек `nginx → app (N екземплярів) → MySQL 8.4`, власна мережа `mtm-net`, том `mtm-mysql-data`, обмеження CPU/пам'яті. |
 | `docker/nginx/default.conf` | nginx балансує запити між усіма екземплярами `app` (DNS Docker, round-robin) і пише в журнал, який екземпляр відповів. |
 | `docker-compose.monitoring.yml` | cAdvisor (`:8082`) і Prometheus (`:9090`, конфіг `monitoring/prometheus.yml`). |
+| `scripts/docker-start.sh` | Запуск однією командою: перевіряє Docker, створює `.env` з випадковими паролями, перевіряє вільний порт, збирає й піднімає стек і чекає на `/api/health`. |
 | `scripts/rolling-update.sh` | Оновлення до нової версії без простою: нові екземпляри стартують поруч зі старими, старі зупиняються після healthcheck. |
 | `k8s/mini-task-manager.yaml` | Той самий стек у Kubernetes (Deployment з RollingUpdate, Service, Secret, PVC). |
 
 ```bash
+./scripts/docker-start.sh               # усе одразу: .env, збірка, запуск, перевірка
+./scripts/docker-start.sh --monitoring  # + cAdvisor і Prometheus
+./scripts/docker-start.sh stop          # зупинити (status, logs — стан і журнали)
+
+# або вручну:
 cp .env.example .env                 # змініть паролі
 docker compose up -d --build         # http://localhost:8088
 docker compose up -d --scale app=3   # масштабування
