@@ -80,7 +80,7 @@
 - `npm test` — unit-тести REST API (`test/api.test.js`, вбудований `node:test` + `supertest`). База даних підміняється заглушкою, тому MySQL для тестів не потрібна.
 - `npm run test:ci` — ті самі тести зі звітом JUnit у `reports/junit.xml` для Jenkins.
 
-`Jenkinsfile` описує пайплайн: **Checkout → Install → Lint → Unit tests → Build client → Archive → Docker build → Docker push → Deploy** (останні дві стадії вмикаються параметрами `PUSH_IMAGE` і `DEPLOY`). Збірка запускається кнопкою «Build Now» або автоматично вебхуком GitHub (`<адреса Jenkins>/github-webhook/`).
+`Jenkinsfile` описує пайплайн: **Checkout → Install → Lint → Unit tests → Build client → Archive → Docker build → Docker push → Deploy** (останні дві стадії вмикаються параметрами `PUSH_IMAGE` і `DEPLOY`). Збірка запускається кнопкою «Build Now» або автоматично вебхуком GitHub (`<адреса Jenkins>/github-webhook/`). Push у репозиторій без параметрів лише збирає й перевіряє код; розгортання на сервер вмикається галочкою `DEPLOY` у «Build with Parameters».
 
 ## Docker
 
