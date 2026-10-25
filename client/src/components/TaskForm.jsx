@@ -44,7 +44,7 @@ export default function TaskForm({ onSubmit }) {
                     onChange={(e) => setDescription(e.target.value)}
                     aria-describedby="taskDescHint"
                 />
-                <span id="taskDescHint" className="hint">Необов'язково</span>
+                <span id="taskDescHint" className="hint">Необов’язково</span>
             </div>
             {error && <Alert>{error}</Alert>}
             <button type="submit" className="btn btn-primary btn-block" disabled={pending || !title.trim()}>

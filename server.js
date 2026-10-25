@@ -278,7 +278,11 @@ app.get('/{*splat}', (req, res) => {
     res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-    console.log(`Сервер запущено за адресою http://localhost:${PORT}`);
-});
+// Запуск сервера (лише при прямому запуску; у тестах app імпортується без listen)
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Сервер запущено за адресою http://localhost:${PORT}`);
+    });
+}
+
+module.exports = app;

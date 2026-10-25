@@ -73,3 +73,11 @@
 * Перемикач світлої та темної теми (кнопка в шапці і на сторінці входу). Вибір зберігається в `localStorage`, а за замовчуванням береться системна тема.
 * Підтримка `prefers-reduced-motion`.
 * Адаптивний макет: на мобільних список і деталі завдання відкриваються по черзі.
+
+## Тести та CI (Jenkins)
+
+- `npm run lint` — ESLint для бекенду (`server.js`, `db.js`) і React-клієнта (`client/src`).
+- `npm test` — unit-тести REST API (`test/api.test.js`, вбудований `node:test` + `supertest`). База даних підміняється заглушкою, тому MySQL для тестів не потрібна.
+- `npm run test:ci` — ті самі тести зі звітом JUnit у `reports/junit.xml` для Jenkins.
+
+`Jenkinsfile` описує пайплайн: **Checkout → Install → Lint → Unit tests → Build client → Archive**. Збірка запускається кнопкою «Build Now» або автоматично вебхуком GitHub (`<адреса Jenkins>/github-webhook/`).

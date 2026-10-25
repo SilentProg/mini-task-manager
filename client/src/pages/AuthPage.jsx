@@ -107,7 +107,7 @@ export default function AuthPage() {
                 {tab === 'login' ? (
                     <form id="panel-login" role="tabpanel" aria-labelledby="tab-login" onSubmit={handleLogin} className="auth-form">
                         <div className="field">
-                            <label htmlFor="loginUsername">Ім'я користувача</label>
+                            <label htmlFor="loginUsername">Ім’я користувача</label>
                             <input
                                 id="loginUsername"
                                 className="input"
@@ -134,7 +134,7 @@ export default function AuthPage() {
                 ) : (
                     <form id="panel-register" role="tabpanel" aria-labelledby="tab-register" onSubmit={handleRegister} className="auth-form">
                         <div className="field">
-                            <label htmlFor="regUsername">Ім'я користувача</label>
+                            <label htmlFor="regUsername">Ім’я користувача</label>
                             <input
                                 id="regUsername"
                                 className="input"
