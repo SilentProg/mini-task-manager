@@ -1,7 +1,7 @@
 // CI-пайплайн Mini Task Manager: встановлення залежностей, лінтер, unit-тести, збірка React-клієнта.
 // Працює як на Windows-агенті (bat), так і на Linux/macOS (sh). Потрібен Node.js 20+ у PATH агента.
 
-def run(String command) {
+def runCmd(String command) {
     if (isUnix()) {
         sh command
     } else {
@@ -33,21 +33,21 @@ pipeline {
 
         stage('Install') {
             steps {
-                run 'node --version'
-                run 'npm --version'
-                run 'npm ci'
+                runCmd('node --version')
+                runCmd('npm --version')
+                runCmd('npm ci')
             }
         }
 
         stage('Lint') {
             steps {
-                run 'npm run lint'
+                runCmd('npm run lint')
             }
         }
 
         stage('Unit tests') {
             steps {
-                run 'npm run test:ci'
+                runCmd('npm run test:ci')
             }
             post {
                 always {
@@ -58,7 +58,7 @@ pipeline {
 
         stage('Build client') {
             steps {
-                run 'npm run build'
+                runCmd('npm run build')
             }
         }
 
