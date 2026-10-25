@@ -48,8 +48,10 @@ async function initializeDB() {
   }
 }
 
-// Запускаємо ініціалізацію
-initializeDB();
+// Запускаємо ініціалізацію (у тестах база даних не потрібна)
+if (process.env.NODE_ENV !== 'test') {
+  initializeDB();
+}
 
 // Експортуємо пул для використання в інших файлах (наприклад, у server.js)
 module.exports = pool;
