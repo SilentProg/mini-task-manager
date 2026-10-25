@@ -1,0 +1,152 @@
+# Mini Task Manager у Kubernetes (ДЗ1, п.10): той самий образ, що й у Docker Compose.
+# Локальний кластер kind:
+#   kind create cluster --name mtm
+#   kind load docker-image silentprog/mini-task-manager:1.0 --name mtm
+#   kubectl apply -f k8s/mini-task-manager.yaml
+#   kubectl -n mini-task-manager port-forward svc/app 8089:80
+# Оновлення без простою:
+#   kubectl -n mini-task-manager set image deployment/app app=silentprog/mini-task-manager:1.1
+# Масштабування:
+#   kubectl -n mini-task-manager scale deployment/app --replicas=4
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mini-task-manager
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mtm-secrets
+  namespace: mini-task-manager
+type: Opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: change_me_root
+  DB_PASSWORD: change_me_app
+  JWT_SECRET: change_me_jwt_secret
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-data
+  namespace: mini-task-manager
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: mini-task-manager
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: { app: db }
+  template:
+    metadata:
+      labels: { app: db }
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.4
+          env:
+            - name: MYSQL_DATABASE
+              value: mini_task_manager
+            - name: MYSQL_USER
+              value: mtm
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom: { secretKeyRef: { name: mtm-secrets, key: MYSQL_ROOT_PASSWORD } }
+            - name: MYSQL_PASSWORD
+              valueFrom: { secretKeyRef: { name: mtm-secrets, key: DB_PASSWORD } }
+          ports:
+            - containerPort: 3306
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "mysqladmin ping -h 127.0.0.1 -u root -p$MYSQL_ROOT_PASSWORD --silent"]
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          resources:
+            limits: { cpu: "1", memory: 1Gi }
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mysql-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: mini-task-manager
+spec:
+  selector: { app: db }
+  ports:
+    - port: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: mini-task-manager
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels: { app: app }
+  template:
+    metadata:
+      labels: { app: app }
+    spec:
+      initContainers:
+        # Застосунок ініціалізує БД один раз під час старту, тому чекаємо, поки MySQL прийме з'єднання
+        - name: wait-for-db
+          image: busybox:1.36
+          command: ["sh", "-c", "until nc -z db 3306; do echo waiting for db; sleep 2; done"]
+      containers:
+        - name: app
+          image: silentprog/mini-task-manager:1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DB_HOST
+              value: db
+            - name: DB_NAME
+              value: mini_task_manager
+            - name: DB_USER
+              value: mtm
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: mtm-secrets, key: DB_PASSWORD } }
+            - name: JWT_SECRET
+              valueFrom: { secretKeyRef: { name: mtm-secrets, key: JWT_SECRET } }
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            httpGet: { path: /api/health, port: 3000 }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /api/health, port: 3000 }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 100m, memory: 64Mi }
+            limits: { cpu: 500m, memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: mini-task-manager
+spec:
+  selector: { app: app }
+  ports:
+    - port: 80
+      targetPort: 3000

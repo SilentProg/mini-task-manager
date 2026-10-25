@@ -163,3 +163,12 @@ test('невідомий API-маршрут повертає JSON 404', async ()
     assert.equal(res.status, 404);
     assert.equal(res.body.message, 'Маршрут не знайдено');
 });
+
+test('healthcheck повертає статус, версію та ім\'я екземпляра без токена', async () => {
+    const res = await request(app).get('/api/health');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.status, 'ok');
+    assert.ok(res.body.version);
+    assert.ok(res.body.instance);
+    assert.equal(queryCalls.length, 0);
+});
