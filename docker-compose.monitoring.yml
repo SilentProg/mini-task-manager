@@ -1,0 +1,44 @@
+# Моніторинг контейнерів: cAdvisor (метрики) + Prometheus (збір і запити).
+# Запуск (разом з основним стеком):
+#   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+# cAdvisor:   http://<сервер>:8082
+# Prometheus: http://<сервер>:9090
+
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    # 8080 на хості може бути зайнятий (Jenkins), тому публікуємо на 8082
+    ports:
+      - "8082:8080"
+    networks:
+      - mtm-net
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - cadvisor
+    networks:
+      - mtm-net
+
+volumes:
+  prometheus-data:
+    name: mtm-prometheus-data
