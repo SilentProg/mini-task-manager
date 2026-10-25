@@ -80,4 +80,25 @@
 - `npm test` — unit-тести REST API (`test/api.test.js`, вбудований `node:test` + `supertest`). База даних підміняється заглушкою, тому MySQL для тестів не потрібна.
 - `npm run test:ci` — ті самі тести зі звітом JUnit у `reports/junit.xml` для Jenkins.
 
-`Jenkinsfile` описує пайплайн: **Checkout → Install → Lint → Unit tests → Build client → Archive**. Збірка запускається кнопкою «Build Now» або автоматично вебхуком GitHub (`<адреса Jenkins>/github-webhook/`).
+`Jenkinsfile` описує пайплайн: **Checkout → Install → Lint → Unit tests → Build client → Archive → Docker build → Docker push → Deploy** (останні дві стадії вмикаються параметрами `PUSH_IMAGE` і `DEPLOY`). Збірка запускається кнопкою «Build Now» або автоматично вебхуком GitHub (`<адреса Jenkins>/github-webhook/`).
+
+## Docker
+
+| Файл | Призначення |
+|---|---|
+| `Dockerfile` | Багатоетапна збірка: React-клієнт (Vite) → production-залежності → фінальний образ `node:22-alpine` від користувача `node` з `HEALTHCHECK` на `/api/health`. |
+| `docker-compose.yml` | Стек `nginx → app (N екземплярів) → MySQL 8.4`, власна мережа `mtm-net`, том `mtm-mysql-data`, обмеження CPU/пам'яті. |
+| `docker/nginx/default.conf` | nginx балансує запити між усіма екземплярами `app` (DNS Docker, round-robin) і пише в журнал, який екземпляр відповів. |
+| `docker-compose.monitoring.yml` | cAdvisor (`:8082`) і Prometheus (`:9090`, конфіг `monitoring/prometheus.yml`). |
+| `scripts/rolling-update.sh` | Оновлення до нової версії без простою: нові екземпляри стартують поруч зі старими, старі зупиняються після healthcheck. |
+| `k8s/mini-task-manager.yaml` | Той самий стек у Kubernetes (Deployment з RollingUpdate, Service, Secret, PVC). |
+
+```bash
+cp .env.example .env                 # змініть паролі
+docker compose up -d --build         # http://localhost:8088
+docker compose up -d --scale app=3   # масштабування
+./scripts/rolling-update.sh 1.1      # оновлення без простою
+docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d   # + моніторинг
+```
+
+`GET /api/health` повертає `{ status, version, instance }`: версію образу (`APP_VERSION`) та ім'я контейнера, що обробив запит.
