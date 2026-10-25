@@ -33,6 +33,12 @@ export default function SubtaskList({ taskId }) {
         await run(() => api.createSubtask(taskId, value));
     }
 
+    // Оптимістичне оновлення: чекбокс реагує одразу, а список синхронізується після відповіді сервера
+    function toggle(id, isCompleted) {
+        setSubtasks((list) => list.map((s) => (s.id === id ? { ...s, is_completed: isCompleted } : s)));
+        run(() => api.updateSubtask(id, { is_completed: isCompleted }));
+    }
+
     const doneCount = subtasks.filter((s) => s.is_completed).length;
     const progress = subtasks.length ? Math.round((doneCount / subtasks.length) * 100) : 0;
 
@@ -68,7 +74,7 @@ export default function SubtaskList({ taskId }) {
                     onChange={(e) => setTitle(e.target.value)}
                     maxLength={255}
                 />
-                <button type="submit" className="btn btn-primary" disabled={!title.trim()}>
+                <button type="submit" className="btn btn-primary" disabled={!title.trim()} aria-label="Додати підзадачу">
                     <Plus size={18} aria-hidden="true" />
                     <span>Додати</span>
                 </button>
@@ -88,9 +94,7 @@ export default function SubtaskList({ taskId }) {
                                 <input
                                     type="checkbox"
                                     checked={Boolean(st.is_completed)}
-                                    onChange={(e) =>
-                                        run(() => api.updateSubtask(st.id, { is_completed: e.target.checked }))
-                                    }
+                                    onChange={(e) => toggle(st.id, e.target.checked)}
                                 />
                                 <span className={st.is_completed ? 'completed' : ''}>{st.title}</span>
                             </label>

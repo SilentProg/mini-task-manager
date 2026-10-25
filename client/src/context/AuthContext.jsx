@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { api, setUnauthorizedHandler, tokenStorage } from '../api/client.js';
+import { api, setUnauthorizedHandler, tokenStorage, UnauthorizedError } from '../api/client.js';
 
 const AuthContext = createContext(null);
 
@@ -30,7 +30,10 @@ export function AuthProvider({ children }) {
         let cancelled = false;
         api.me()
             .then((profile) => !cancelled && setUser(profile))
-            .catch((err) => console.error('Помилка завантаження профілю', err));
+            .catch((err) => {
+                // При недійсному токені apiFetch вже розлогінив користувача
+                if (!(err instanceof UnauthorizedError)) console.error('Помилка завантаження профілю', err);
+            });
         return () => {
             cancelled = true;
         };
