@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import Alert from '../components/Alert.jsx';
 import Logo from '../components/Logo.jsx';
 import PasswordInput from '../components/PasswordInput.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 import './AuthPage.css';
 
 const TABS = [
@@ -69,6 +70,7 @@ export default function AuthPage() {
 
     return (
         <main className="auth-page">
+            <ThemeToggle className="auth-theme-toggle" />
             <section className="auth-card" aria-labelledby="auth-title">
                 <header className="auth-header">
                     <Logo size="lg" />

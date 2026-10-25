@@ -5,6 +5,12 @@
     padding: var(--space-md);
 }
 
+.auth-theme-toggle {
+    position: fixed;
+    top: var(--space-md);
+    right: var(--space-md);
+}
+
 .auth-card {
     width: 100%;
     max-width: 440px;

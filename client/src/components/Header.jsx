@@ -1,6 +1,7 @@
 import { LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import Logo from './Logo.jsx';
+import ThemeToggle from './ThemeToggle.jsx';
 
 export default function Header() {
     const { user, logout } = useAuth();
@@ -17,6 +18,7 @@ export default function Header() {
                             <span className="user-name">Привіт, {user.username}!</span>
                         </span>
                     )}
+                    <ThemeToggle />
                     <button type="button" className="btn btn-ghost" onClick={logout}>
                         <LogOut size={18} aria-hidden="true" />
                         <span>Вийти</span>
