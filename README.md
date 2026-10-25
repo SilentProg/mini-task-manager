@@ -90,6 +90,7 @@
 | `docker-compose.yml` | Стек `nginx → app (N екземплярів) → MySQL 8.4`, власна мережа `mtm-net`, том `mtm-mysql-data`, обмеження CPU/пам'яті. |
 | `docker/nginx/default.conf` | nginx балансує запити між усіма екземплярами `app` (DNS Docker, round-robin) і пише в журнал, який екземпляр відповів. |
 | `docker-compose.monitoring.yml` | cAdvisor (`:8082`) і Prometheus (`:9090`, конфіг `monitoring/prometheus.yml`). |
+| `docker/nginx/host-proxy.conf` | Конфіг nginx на хості: доступ до застосунку й моніторингу за доменом. |
 | `scripts/docker-start.sh` | Запуск однією командою: перевіряє Docker, створює `.env` з випадковими паролями, перевіряє вільний порт, збирає й піднімає стек і чекає на `/api/health`. |
 | `scripts/rolling-update.sh` | Оновлення до нової версії без простою: нові екземпляри стартують поруч зі старими, старі зупиняються після healthcheck. |
 | `k8s/mini-task-manager.yaml` | Той самий стек у Kubernetes (Deployment з RollingUpdate, Service, Secret, PVC). |
@@ -108,3 +109,15 @@ docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d   # 
 ```
 
 `GET /api/health` повертає `{ status, version, instance }`: версію образу (`APP_VERSION`) та ім'я контейнера, що обробив запит.
+
+### Доступ за доменом
+
+Контейнери публікують порти лише на `127.0.0.1` (8088, 8082, 9090), тому ззовні до них не дістатися напряму. Назовні все віддає nginx на хості з HTTPS від Let's Encrypt:
+
+| Адреса | Куди веде |
+|---|---|
+| `https://tasks.kprojectgemfk.xyz` | застосунок (`127.0.0.1:8088`) |
+| `https://cadvisor.kprojectgemfk.xyz` | cAdvisor (`127.0.0.1:8082`), під паролем |
+| `https://prometheus.kprojectgemfk.xyz` | Prometheus (`127.0.0.1:9090`), під паролем |
+
+Для всіх трьох імен потрібні DNS A-записи на IP сервера та відкриті порти 80 і 443. Команди встановлення наведено на початку `docker/nginx/host-proxy.conf`.

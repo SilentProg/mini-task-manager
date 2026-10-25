@@ -1,8 +1,8 @@
 # Моніторинг контейнерів: cAdvisor (метрики) + Prometheus (збір і запити).
 # Запуск (разом з основним стеком):
 #   docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
-# cAdvisor:   http://<сервер>:8082
-# Prometheus: http://<сервер>:9090
+# cAdvisor:   http://localhost:8082 на сервері, https://cadvisor.kprojectgemfk.xyz назовні
+# Prometheus: http://localhost:9090 на сервері, https://prometheus.kprojectgemfk.xyz назовні
 
 services:
   cadvisor:
@@ -17,9 +17,10 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-    # 8080 на хості може бути зайнятий (Jenkins), тому публікуємо на 8082
+    # 8080 на хості може бути зайнятий (Jenkins), тому публікуємо на 8082.
+    # Лише локально: назовні доступ через nginx на хості з паролем (docker/nginx/host-proxy.conf)
     ports:
-      - "8082:8080"
+      - "127.0.0.1:8082:8080"
     networks:
       - mtm-net
 
@@ -33,7 +34,7 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     depends_on:
       - cadvisor
     networks:
