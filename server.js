@@ -9,7 +9,9 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_jwt_please_change_it'; // В ідеалі додати в .env
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Зібраний React-застосунок (npm run build -> client/dist)
+const CLIENT_DIST = path.join(__dirname, 'client', 'dist');
+app.use(express.static(CLIENT_DIST));
 
 // ==========================================
 // МІДЛВАР ДЛЯ ПЕРЕВІРКИ АВТОРИЗАЦІЇ
@@ -261,6 +263,19 @@ app.delete('/api/subtasks/:id', authenticateToken, async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Помилка сервера', error: error.message });
     }
+});
+
+// ==========================================
+// SPA FALLBACK
+// ==========================================
+
+// Невідомі /api маршрути повертають JSON 404, а всі інші - index.html, щоб працював React Router
+app.use('/api', (req, res) => {
+    res.status(404).json({ message: 'Маршрут не знайдено' });
+});
+
+app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });
 
 // Запуск сервера
