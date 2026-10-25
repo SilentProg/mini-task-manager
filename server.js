@@ -2,16 +2,27 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
+const os = require('os');
 const pool = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const APP_VERSION = process.env.APP_VERSION || 'dev';
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_jwt_please_change_it'; // В ідеалі додати в .env
 
 app.use(express.json());
 // Зібраний React-застосунок (npm run build -> client/dist)
 const CLIENT_DIST = path.join(__dirname, 'client', 'dist');
 app.use(express.static(CLIENT_DIST));
+
+// ==========================================
+// HEALTHCHECK (Docker, nginx, Kubernetes)
+// ==========================================
+
+// Версія образу та ім'я контейнера (hostname) показують, який екземпляр обробив запит
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', version: APP_VERSION, instance: os.hostname() });
+});
 
 // ==========================================
 // МІДЛВАР ДЛЯ ПЕРЕВІРКИ АВТОРИЗАЦІЇ
