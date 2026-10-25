@@ -6,7 +6,6 @@ const pool = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DEFAULT_PAGE_SIZE = 20;
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_for_jwt_please_change_it'; // В ідеалі додати в .env
 
 app.use(express.json());
@@ -127,7 +126,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
             [req.user.id, title, description || null]
         );
         
-        res.status(201).json({ message: 'Завдання створено', taskId: result.insertId });
+        res.status(200).json({ message: 'Завдання створено', taskId: result.insertId });
     } catch (error) {
         res.status(500).json({ message: 'Помилка сервера', error: error.message });
     }
