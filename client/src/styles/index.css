@@ -45,9 +45,9 @@
     color-scheme: light;
 }
 
-/* Темна тема (стиль Flat Design підтримує обидва режими) */
+/* Темна тема: за системним налаштуванням, якщо користувач не обрав світлу явно */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme='light']) {
         --color-primary: #14B8A6;
         --color-primary-hover: #2DD4BF;
         --color-on-primary: #042F2E;
@@ -65,6 +65,26 @@
         --color-selected: #134E4A;
         color-scheme: dark;
     }
+}
+
+/* Темна тема, обрана перемикачем */
+:root[data-theme='dark'] {
+    --color-primary: #14B8A6;
+    --color-primary-hover: #2DD4BF;
+    --color-on-primary: #042F2E;
+    --color-background: #0B1514;
+    --color-foreground: #E6FFFA;
+    --color-card: #12201F;
+    --color-muted: #1C2E2C;
+    --color-muted-foreground: #A3B8B5;
+    --color-border: #23403D;
+    --color-input-border: #35524F;
+    --color-destructive: #F87171;
+    --color-on-destructive: #1F0A0A;
+    --color-success: #4ADE80;
+    --color-ring: #2DD4BF;
+    --color-selected: #134E4A;
+    color-scheme: dark;
 }
 
 /* ==========================================
