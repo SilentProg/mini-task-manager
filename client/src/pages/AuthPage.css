@@ -39,34 +39,6 @@
     margin-top: var(--space-sm);
 }
 
-/* Логотип */
-.logo {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-sm);
-    font-weight: 700;
-}
-
-.logo-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    background: var(--color-primary);
-    color: var(--color-on-primary);
-}
-
-.logo-lg .logo-mark {
-    width: 44px;
-    height: 44px;
-}
-
-.logo-lg .logo-text {
-    font-size: 1.125rem;
-}
-
 /* Вкладки */
 .tabs {
     display: grid;
