@@ -1,3 +1,5 @@
 .git/
 node_modules/
 *.env
+# Локальні артефакти skill ui-ux-pro-max
+design-system/

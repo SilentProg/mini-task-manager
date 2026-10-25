@@ -17,7 +17,7 @@
 *   **База даних:** MySQL
 *   **Аутентифікація:** JWT (JSON Web Tokens), bcrypt
 *   **Frontend:** React 19, React Router, Vite, lucide-react (іконки)
-*   **Дизайн-система:** згенерована skill [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) (`design-system/`)
+*   **Дизайн-система:** згенерована skill [ui-ux-pro-max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)
 *   **Система контролю версій:** Git, GitHub
 
 ## API Маршрути (Routes)
@@ -49,13 +49,15 @@
 3. Зібрати фронтенд: `npm run build` (встановлює залежності `client/` і збирає їх у `client/dist`).
 4. Запустити сервер: `npm start` і відкрити `http://localhost:3000`.
 
+> Файл `client/dist/index.html` не можна відкривати напряму з диска (`file://`): браузер блокує ES-модулі з такого джерела, а API та маршрутизація працюють лише через сервер. Відкривайте застосунок тільки через `http://localhost:3000`.
+
 Для розробки фронтенду з гарячим перезавантаженням запустіть `npm start` в одному терміналі та `npm run dev:client` в іншому, після чого відкрийте `http://localhost:5173`. Vite проксує запити `/api` на Express-сервер.
 
 ## Фронтенд (Клієнтська частина)
 
 Клієнтська частина розміщена у папці `client` і є Single Page Application на **React**, зібраною через **Vite**. Express роздає готову збірку з `client/dist`, а для всіх не-API маршрутів повертає `index.html`, щоб працювала клієнтська маршрутизація (React Router).
 
-Візуальний стиль (Flat Design, палітра teal + orange, шрифт Plus Jakarta Sans, відступи та специфікації компонентів) описаний у `design-system/mini-task-manager/MASTER.md`, згенерованому skill **ui-ux-pro-max**. Дизайн-токени підключені як CSS-змінні у `client/src/styles/index.css`, є автоматична темна тема.
+Візуальний стиль (Flat Design, палітра teal + orange, шрифт Plus Jakarta Sans, відступи та специфікації компонентів) підібраний за допомогою skill **ui-ux-pro-max**. Дизайн-токени підключені як CSS-змінні у `client/src/styles/index.css`, є автоматична темна тема.
 
 ### Структура `client/src`:
 1. **`api/client.js`** — функція `apiFetch`, яка підписує запити JWT-токеном, та набір методів для всіх маршрутів API. При відповіді 401/403 користувача автоматично розлогінює.
