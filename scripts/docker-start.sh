@@ -121,8 +121,10 @@ wait_healthy "${NGINX_PORT}"
 echo
 compose ps
 echo
-echo "Застосунок:  http://localhost:${NGINX_PORT}"
+# Порти опубліковано лише на 127.0.0.1, назовні все доступно через nginx на хості (docker/nginx/host-proxy.conf)
+echo "Застосунок:  http://localhost:${NGINX_PORT}   https://tasks.kprojectgemfk.xyz"
 if [ "${#COMPOSE_FILES[@]}" -gt 2 ]; then
-  echo "cAdvisor:    http://localhost:8082"
-  echo "Prometheus:  http://localhost:9090"
+  echo "cAdvisor:    http://localhost:8082   https://cadvisor.kprojectgemfk.xyz"
+  echo "Prometheus:  http://localhost:9090   https://prometheus.kprojectgemfk.xyz"
 fi
+echo "(localhost-адреси працюють лише на самому сервері)"
