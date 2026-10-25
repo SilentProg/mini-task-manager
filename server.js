@@ -126,7 +126,7 @@ app.post('/api/tasks', authenticateToken, async (req, res) => {
             [req.user.id, title, description || null]
         );
         
-        res.status(200).json({ message: 'Завдання створено', taskId: result.insertId });
+        res.status(201).json({ message: 'Завдання створено', taskId: result.insertId });
     } catch (error) {
         res.status(500).json({ message: 'Помилка сервера', error: error.message });
     }
