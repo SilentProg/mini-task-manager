@@ -1,0 +1,97 @@
+# CI/CD для ЛР3 (Argo CD, GitOps):
+# 1) lint + тести; 2) збірка образу з версією 1.2.<номер запуску> і push у Docker Hub;
+# 3) оновлення image.tag / appVersion / version чарту в репозиторії mini-task-manager-charts.
+# Далі Argo CD бачить новий коміт у репозиторії чарту і сам синхронізує кластер.
+#
+# Секрети репозиторію (Settings → Secrets and variables → Actions):
+#   DOCKERHUB_USERNAME, DOCKERHUB_TOKEN — Docker Hub (Personal access token, Read & Write)
+#   CHARTS_REPO_TOKEN — GitHub fine-grained token з Contents: Read and write на mini-task-manager-charts
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "lab_argo/**"
+      - "Jenkinsfile"
+  workflow_dispatch:
+
+env:
+  IMAGE: silentprog/mini-task-manager
+  CHARTS_REPO: SilentProg/mini-task-manager-charts
+  CHART_PATH: charts/mini-task-manager
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Версія образу
+        id: version
+        run: echo "version=1.2.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: APP_VERSION=${{ steps.version.outputs.version }}
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.version.outputs.version }}
+            ${{ env.IMAGE }}:latest
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+
+  update-chart:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - name: Checkout репозиторію чарту
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CHARTS_REPO }}
+          token: ${{ secrets.CHARTS_REPO_TOKEN }}
+
+      - name: Оновити image.tag, appVersion і версію чарту
+        working-directory: ${{ env.CHART_PATH }}
+        run: |
+          CUR=$(yq '.version' Chart.yaml)
+          NEW="${CUR%.*}.$(( ${CUR##*.} + 1 ))"
+          yq -i ".version = \"$NEW\" | .appVersion = \"$VERSION\"" Chart.yaml
+          yq -i ".image.tag = \"$VERSION\"" values.yaml
+          echo "Чарт $CUR -> $NEW, образ $VERSION"
+          git diff
+
+      - name: Commit і push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(mini-task-manager): образ ${VERSION} (${GITHUB_SHA::7})"
+          git push

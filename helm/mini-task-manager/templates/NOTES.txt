@@ -1,5 +1,0 @@
-Mini Task Manager {{ .Values.image.tag | default .Chart.AppVersion }} розгорнуто як реліз {{ .Release.Name }} у namespace {{ .Release.Namespace }}.
-{{- if .Values.ingress.enabled }}
-Адреса: http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.host }}
-{{- end }}
-Локально: kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "mtm.fullname" . }} 8090:{{ .Values.service.port }}
