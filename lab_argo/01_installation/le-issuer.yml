@@ -1,0 +1,15 @@
+# ClusterIssuer cert-manager для сертифікатів Let's Encrypt (HTTP-01 через ingress-nginx).
+# Email не обов'язковий: Let's Encrypt більше не надсилає листів про закінчення сертифіката.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: nginx

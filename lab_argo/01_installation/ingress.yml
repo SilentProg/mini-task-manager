@@ -1,0 +1,29 @@
+# Ingress для веб-інтерфейсу Argo CD: https://argocd.kprojectgemfk.xyz
+# argocd-server сам слухає HTTPS, тому nginx звертається до нього по HTTPS (backend-protocol).
+# Сертифікат cert-manager кладе в секрет argocd-server-tls, який argocd-server теж підхоплює.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd-server
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - argocd.kprojectgemfk.xyz
+      secretName: argocd-server-tls
+  rules:
+    - host: argocd.kprojectgemfk.xyz
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: argocd-server
+                port:
+                  name: https
