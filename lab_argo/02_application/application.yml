@@ -1,0 +1,19 @@
+# Той самий додаток, що створюється через веб-інтерфейс Argo CD (ч.2 ЛР3), у декларативному вигляді.
+# Застосування: kubectl apply -f lab_argo/02_application/application.yml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mini-task-manager
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SilentProg/mini-task-manager.git
+    targetRevision: main
+    path: helm/mini-task-manager
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mini-task-manager
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

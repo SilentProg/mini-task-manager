@@ -1,0 +1,12 @@
+apiVersion: v2
+name: mini-task-manager
+description: Mini Task Manager (Node.js/Express + React) разом із MySQL
+type: application
+# Версія самого чарту. Збільшується при кожній зміні шаблонів або значень.
+version: 0.1.0
+# Версія застосунку (тег образу за замовчуванням)
+appVersion: "1.1"
+home: https://github.com/SilentProg/mini-task-manager
+maintainers:
+  - name: SilentProg
+    url: https://github.com/SilentProg
