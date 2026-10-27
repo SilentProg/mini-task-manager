@@ -37,6 +37,13 @@
     color: var(--color-muted-foreground);
 }
 
+.auth-version {
+    margin-top: var(--space-md);
+    font-size: 0.8rem;
+    color: var(--color-muted-foreground);
+    text-align: center;
+}
+
 .auth-form {
     margin-bottom: var(--space-md);
 }

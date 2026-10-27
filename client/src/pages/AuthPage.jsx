@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { api } from '../api/client.js';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -18,6 +18,15 @@ export default function AuthPage() {
     const [tab, setTab] = useState('login');
     const [message, setMessage] = useState(null); // { type: 'error' | 'success', text }
     const [pending, setPending] = useState(false);
+    const [version, setVersion] = useState(null);
+
+    // Версія образу з /api/health: видно, яку збірку CI розгорнув Argo CD
+    useEffect(() => {
+        fetch('/api/health')
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => setVersion(data?.version ?? null))
+            .catch(() => {});
+    }, []);
     const tabRefs = useRef({});
 
     const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -176,6 +185,7 @@ export default function AuthPage() {
                     {message && <Alert type={message.type}>{message.text}</Alert>}
                 </div>
             </section>
+            {version && <p className="auth-version">Версія {version}</p>}
         </main>
     );
 }
