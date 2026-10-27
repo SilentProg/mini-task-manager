@@ -1,0 +1,24 @@
+# Application Argo CD для ч.3 ЛР3: чарт береться з окремого репозиторію mini-task-manager-charts,
+# увімкнена автоматична синхронізація. CI цього репозиторію оновлює image.tag у чарті,
+# а Argo CD помічає новий коміт (опитування раз на ~3 хв) і сам розгортає нову версію.
+# Застосування: kubectl apply -f lab_argo/03_automation/application.yml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mini-task-manager
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SilentProg/mini-task-manager-charts.git
+    targetRevision: main
+    path: charts/mini-task-manager
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mini-task-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
